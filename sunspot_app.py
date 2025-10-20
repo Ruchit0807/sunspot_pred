@@ -1,37 +1,28 @@
 # ==============================================================
-# 🌞 Solar Activity - Sunspot Predictor (Self-contained Streamlit App)
+# 🌞 Solar Activity - Sunspot Predictor (Streamlit-ready, single file)
 # ==============================================================
 
-import subprocess
-import sys
-
-# ---- Auto-install missing packages ----
-def install_if_missing(package):
-    try:
-        __import__(package)
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-for pkg in ["streamlit", "numpy", "pandas", "matplotlib", "scikit-learn"]:
-    install_if_missing(pkg)
-
-# ---- Now import all modules ----
-import matplotlib
-matplotlib.use("Agg")  # Ensure compatibility with Streamlit Cloud
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
-import streamlit as st
+try:
+    import streamlit as st
+    import numpy as np
+    import pandas as pd
+    import matplotlib
+    matplotlib.use("Agg")  # Streamlit-safe backend
+    import matplotlib.pyplot as plt
+    from sklearn.linear_model import LinearRegression
+    from sklearn.preprocessing import PolynomialFeatures
+except ModuleNotFoundError as e:
+    missing_pkg = str(e).split("'")[1]
+    st.error(f"🚨 Missing package: **{missing_pkg}**. Please add it in the app settings or requirements.")
+    st.stop()
 
 # ---- Streamlit Page Setup ----
 st.set_page_config(page_title="Sunspot Predictor", layout="wide")
 st.title("🌞 Solar Activity - Sunspot Predictor")
 
 st.markdown("""
-This app predicts **solar sunspot activity** using polynomial regression.
-Enter a year below to see actual or predicted average sunspot numbers.
+This app predicts **solar sunspot activity** using a Polynomial Regression model.  
+Enter a year below to see the **predicted or actual** average sunspot number.
 """)
 
 # ---- Create dataset (1700–2024) ----
@@ -53,7 +44,7 @@ model.fit(X_poly, y)
 # ---- User Input ----
 st.sidebar.header("🔧 Prediction Settings")
 user_year = st.sidebar.number_input(
-    "Enter the year to predict sunspot number:",
+    "Enter a year for prediction:",
     min_value=1980, max_value=2100, value=2030
 )
 
@@ -87,3 +78,4 @@ st.pyplot(fig)
 # ---- Footer ----
 st.markdown("---")
 st.caption("Built with ❤️ using Streamlit and scikit-learn.")
+
